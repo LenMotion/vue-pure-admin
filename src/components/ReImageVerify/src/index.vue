@@ -12,6 +12,7 @@ interface Props {
 
 interface Emits {
   (e: "update:code", code: string): void;
+  (e: "update:uuid", uuid: string): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -20,7 +21,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-const { domRef, imgCode, setImgCode, getImgCode } = useImageVerify();
+const { imgCode, captchaUuid, captchaImg, setImgCode, getImgCode } =
+  useImageVerify();
 
 watch(
   () => props.code,
@@ -31,16 +33,27 @@ watch(
 watch(imgCode, newValue => {
   emit("update:code", newValue);
 });
+watch(captchaUuid, newValue => {
+  emit("update:uuid", newValue);
+});
 
-defineExpose({ getImgCode });
+defineExpose({ getImgCode, captchaUuid });
 </script>
 
 <template>
-  <canvas
-    ref="domRef"
-    width="120"
-    height="40"
-    class="cursor-pointer"
+  <img
+    v-if="captchaImg"
+    ref="imgRef"
+    :src="'data:image/jpeg;base64,' + captchaImg"
+    alt="验证码"
+    class="cursor-pointer h-[40px]"
     @click="getImgCode"
   />
+  <div
+    v-else
+    class="cursor-pointer h-[40px] w-[120px] flex items-center justify-center bg-gray-100"
+    @click="getImgCode"
+  >
+    点击加载
+  </div>
 </template>

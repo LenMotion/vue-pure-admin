@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { formUpload } from "@/api/mock";
+import { http } from "@/utils/http";
 import { message } from "@/utils/message";
 import { type UserInfo, getMine } from "@/api/user";
 import type { FormInstance, FormRules } from "element-plus";
@@ -72,7 +72,17 @@ const handleSubmitImage = () => {
   const formData = createFormData({
     files: new File([cropperBlob.value], "avatar")
   });
-  formUpload(formData)
+  http
+    .request(
+      "post",
+      "/upload",
+      { data: formData },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }
+    )
     .then(({ success, data }) => {
       if (success) {
         message("更新头像成功", { type: "success" });

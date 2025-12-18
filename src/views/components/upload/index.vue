@@ -143,7 +143,7 @@ const onDownload = () => {
       class="pure-upload"
       list-type="picture-card"
       accept="image/jpeg,image/png,image/gif"
-      action="https://run.mocky.io/v3/3aa761d7-b0b3-4a03-96b3-6168d4f7467b"
+      action="/api/upload"
       :limit="3"
       :headers="{ Authorization: 'eyJhbGciOiJIUzUxMiJ9.admin' }"
       :on-exceed="onExceed"
@@ -262,18 +262,6 @@ const onDownload = () => {
           系统管理-用户管理
         </span>
         表格操作栏中的上传头像功能
-      </p>
-      <p class="text-[red] text-[12px] flex flex-auto items-center justify-end">
-        免责声明：上传接口使用免费开源的
-        <el-link
-          href="https://designer.mocky.io/"
-          target="_blank"
-          style="font-size: 16px; font-weight: 800"
-        >
-          &nbsp;Mocky&nbsp;
-        </el-link>
-        <span class="font-bold text-[18x]"> 请不要上传重要信息 </span
-        >，如果造成任何损失，我们概不负责
       </p>
     </div>
   </el-card>

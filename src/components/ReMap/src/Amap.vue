@@ -2,7 +2,7 @@
 import { reactive, getCurrentInstance, onBeforeMount, onUnmounted } from "vue";
 import { deviceDetection } from "@pureadmin/utils";
 import AMapLoader from "@amap/amap-jsapi-loader";
-import { mapJson } from "@/api/mock";
+import { http } from "@/utils/http";
 import car from "@/assets/car.png";
 
 export interface MapConfigureInter {
@@ -90,8 +90,9 @@ onBeforeMount(() => {
         }
       });
 
-      // 获取模拟车辆信息
-      mapJson()
+      // 获取车辆信息
+      http
+        .request("get", "/get-map-info")
         .then(({ data }) => {
           const points: object = data.map(v => {
             return {

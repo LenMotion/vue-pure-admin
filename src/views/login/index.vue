@@ -24,6 +24,7 @@ import { ref, toRaw, reactive, watch, computed } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { encryptPassword } from "@/utils/encrypt";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
@@ -39,6 +40,7 @@ defineOptions({
 });
 
 const imgCode = ref("");
+const captchaUuid = ref("");
 const loginDay = ref(7);
 const router = useRouter();
 const loading = ref(false);
@@ -59,7 +61,7 @@ const { locale, translationCh, translationEn } = useTranslationLang();
 
 const ruleForm = reactive({
   username: "admin",
-  password: "admin123",
+  password: "123qwe",
   verifyCode: ""
 });
 
@@ -68,10 +70,14 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   await formEl.validate(valid => {
     if (valid) {
       loading.value = true;
+      // 使用公钥加密密码
+      const encryptedPassword = encryptPassword(ruleForm.password);
       useUserStoreHook()
         .loginByUsername({
           username: ruleForm.username,
-          password: ruleForm.password
+          password: encryptedPassword,
+          code: ruleForm.verifyCode,
+          uuid: captchaUuid.value
         })
         .then(res => {
           if (res.success) {
@@ -167,7 +173,8 @@ watch(loginDay, value => {
     </div>
     <div class="login-container">
       <div class="img">
-        <component :is="toRaw(illustration)" />
+        <!-- <component :is="toRaw(illustration)" /> -->
+        <img :src="illustration" />
       </div>
       <div class="login-box">
         <div class="login-form">
@@ -228,7 +235,10 @@ watch(loginDay, value => {
                   :prefix-icon="useRenderIcon(Keyhole)"
                 >
                   <template v-slot:append>
-                    <ReImageVerify v-model:code="imgCode" />
+                    <ReImageVerify
+                      v-model:code="imgCode"
+                      v-model:uuid="captchaUuid"
+                    />
                   </template>
                 </el-input>
               </el-form-item>
@@ -264,13 +274,13 @@ watch(loginDay, value => {
                       />
                     </span>
                   </el-checkbox>
-                  <el-button
+                  <!-- <el-button
                     link
                     type="primary"
                     @click="useUserStoreHook().SET_CURRENTPAGE(4)"
                   >
                     {{ t("login.pureForget") }}
-                  </el-button>
+                  </el-button> -->
                 </div>
                 <el-button
                   class="w-full mt-4!"
@@ -285,7 +295,7 @@ watch(loginDay, value => {
               </el-form-item>
             </Motion>
 
-            <Motion :delay="300">
+            <!-- <Motion :delay="300">
               <el-form-item>
                 <div class="w-full h-[20px] flex justify-between items-center">
                   <el-button
@@ -299,10 +309,10 @@ watch(loginDay, value => {
                   </el-button>
                 </div>
               </el-form-item>
-            </Motion>
+            </Motion> -->
           </el-form>
 
-          <Motion v-if="currentPage === 0" :delay="350">
+          <!-- <Motion v-if="currentPage === 0" :delay="350">
             <el-form-item>
               <el-divider>
                 <p class="text-gray-500 text-xs">
@@ -323,7 +333,7 @@ watch(loginDay, value => {
                 </span>
               </div>
             </el-form-item>
-          </Motion>
+          </Motion> -->
           <!-- 手机号登录 -->
           <LoginPhone v-if="currentPage === 1" />
           <!-- 二维码登录 -->
