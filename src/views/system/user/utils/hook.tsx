@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import roleForm from "../form/role.vue";
 import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
-import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
 import userAvatar from "@/assets/user.jpg";
 import { usePublicHooks } from "../../hooks";
@@ -17,12 +16,16 @@ import {
   hideTextAtIndex,
   deviceDetection
 } from "@pureadmin/utils";
+import { getRoleIds, getAllRoleList } from "@/api/system";
+import { getDeptListApi } from "@/api/system/dept";
 import {
-  getRoleIds,
-  getDeptList,
-  getUserList,
-  getAllRoleList
-} from "@/api/system";
+  getUserListApi,
+  saveOrUpdateUserApi,
+  delUserApi,
+  updateUserStatusApi,
+  type UserModel,
+  type UserQuery
+} from "@/api/system/user";
 import {
   ElForm,
   ElInput,
@@ -42,11 +45,11 @@ import {
 } from "vue";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
-  const form = reactive({
+  const form = reactive<UserQuery>({
     // 左侧部门树的id
-    deptId: "",
+    deptId: undefined,
     username: "",
-    phone: "",
+    phoneNumber: "",
     status: ""
   });
   const formRef = ref();
@@ -75,9 +78,11 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       reserveSelection: true // 数据刷新后保留选项
     },
     {
-      label: "用户编号",
-      prop: "id",
-      width: 90
+      label: "序号",
+      type: "index",
+      width: 90,
+      index: (index: number) =>
+        (pagination.currentPage - 1) * pagination.pageSize + index + 1
     },
     {
       label: "用户头像",
@@ -100,7 +105,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     },
     {
       label: "用户昵称",
-      prop: "nickname",
+      prop: "nickName",
       minWidth: 130
     },
     {
@@ -110,23 +115,24 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       cellRenderer: ({ row, props }) => (
         <el-tag
           size={props.size}
-          type={row.sex === 1 ? "danger" : null}
+          type={row.sex === "1" || row.sex === 1 ? "danger" : null}
           effect="plain"
         >
-          {row.sex === 1 ? "女" : "男"}
+          {row.sex === "1" || row.sex === 1 ? "女" : "男"}
         </el-tag>
       )
     },
     {
       label: "部门",
-      prop: "dept.name",
+      prop: "deptName",
       minWidth: 90
     },
     {
       label: "手机号码",
-      prop: "phone",
+      prop: "phoneNumber",
       minWidth: 90,
-      formatter: ({ phone }) => hideTextAtIndex(phone, { start: 3, end: 6 })
+      formatter: ({ phoneNumber }) =>
+        hideTextAtIndex(phoneNumber, { start: 3, end: 6 })
     },
     {
       label: "状态",
@@ -137,8 +143,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           size={scope.props.size === "small" ? "small" : "default"}
           loading={switchLoadMap.value[scope.index]?.loading}
           v-model={scope.row.status}
-          active-value={1}
-          inactive-value={0}
+          active-value="1"
+          inactive-value="0"
           active-text="已启用"
           inactive-text="已停用"
           inline-prompt
@@ -152,7 +158,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       minWidth: 90,
       prop: "createTime",
       formatter: ({ createTime }) =>
-        dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
+        createTime ? dayjs(createTime).format("YYYY-MM-DD HH:mm:ss") : ""
     },
     {
       label: "操作",
@@ -188,7 +194,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   function onChange({ row, index }) {
     ElMessageBox.confirm(
       `确认要<strong>${
-        row.status === 0 ? "停用" : "启用"
+        row.status === "0" || row.status === 0 ? "停用" : "启用"
       }</strong><strong style='color:var(--el-color-primary)'>${
         row.username
       }</strong>用户吗?`,
@@ -209,21 +215,38 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
             loading: true
           }
         );
-        setTimeout(() => {
-          switchLoadMap.value[index] = Object.assign(
-            {},
-            switchLoadMap.value[index],
-            {
-              loading: false
+        const status = row.status === "0" || row.status === 0 ? "1" : "0";
+        updateUserStatusApi({ id: row.id, status })
+          .then(res => {
+            switchLoadMap.value[index] = Object.assign(
+              {},
+              switchLoadMap.value[index],
+              {
+                loading: false
+              }
+            );
+            if (res.code === 200) {
+              row.status = status;
+              message("已成功修改用户状态", {
+                type: "success"
+              });
+            } else {
+              row.status = row.status === "0" || row.status === 0 ? "1" : "0";
             }
-          );
-          message("已成功修改用户状态", {
-            type: "success"
+          })
+          .catch(() => {
+            switchLoadMap.value[index] = Object.assign(
+              {},
+              switchLoadMap.value[index],
+              {
+                loading: false
+              }
+            );
+            row.status = row.status === "0" || row.status === 0 ? "1" : "0";
           });
-        }, 300);
       })
       .catch(() => {
-        row.status === 0 ? (row.status = 1) : (row.status = 0);
+        row.status = row.status === "0" || row.status === 0 ? "1" : "0";
       });
   }
 
@@ -232,8 +255,12 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   function handleDelete(row) {
-    message(`您删除了用户编号为${row.id}的这条数据`, { type: "success" });
-    onSearch();
+    delUserApi(row.id).then(res => {
+      if (res.code === 200) {
+        message(`您删除了用户编号为${row.id}的这条数据`, { type: "success" });
+        onSearch();
+      }
+    });
   }
 
   function handleSizeChange(val: number) {
@@ -272,27 +299,32 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await getUserList(toRaw(form));
-    dataList.value = data.list;
-    pagination.total = data.total;
-    pagination.pageSize = data.pageSize;
-    pagination.currentPage = data.currentPage;
-
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    try {
+      const { result } = await getUserListApi(toRaw(form));
+      dataList.value = result.items || [];
+      pagination.total = result.total || 0;
+      pagination.pageSize = result.pageSize || 10;
+      pagination.currentPage = result.page || 1;
+    } finally {
+      setTimeout(() => {
+        loading.value = false;
+      }, 500);
+    }
   }
 
   const resetForm = formEl => {
     if (!formEl) return;
     formEl.resetFields();
-    form.deptId = "";
+    form.deptId = undefined;
+    form.username = "";
+    form.phoneNumber = "";
+    form.status = "";
     treeRef.value.onTreeReset();
     onSearch();
   };
 
   function onTreeSelect({ id, selected }) {
-    form.deptId = selected ? id : "";
+    form.deptId = selected ? id : undefined;
     onSearch();
   }
 
@@ -308,21 +340,29 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     return newTreeList;
   }
 
-  function openDialog(title = "新增", row?: FormItemProps) {
+  function openDialog(title = "新增", row?: UserModel) {
     addDialog({
       title: `${title}用户`,
       props: {
         formInline: {
           title,
           higherDeptOptions: formatHigherDeptOptions(higherDeptOptions.value),
-          parentId: row?.dept.id ?? 0,
-          nickname: row?.nickname ?? "",
+          parentId: row?.deptId ?? 0,
+          nickname: row?.nickName ?? "",
           username: row?.username ?? "",
-          password: row?.password ?? "",
-          phone: row?.phone ?? "",
+          password: "",
+          phone: row?.phoneNumber ?? "",
           email: row?.email ?? "",
           sex: row?.sex ?? "",
-          status: row?.status ?? 1,
+          nation: row?.nation ?? "",
+          idType: row?.idType ?? "",
+          cultureType: row?.cultureType ?? "",
+          politicalOutlook: row?.politicalOutlook ?? "",
+          status:
+            row?.status === "1" ||
+            (typeof row?.status === "number" && row?.status === 1)
+              ? 1
+              : 0,
           remark: row?.remark ?? ""
         }
       },
@@ -344,15 +384,31 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         }
         FormRef.validate(valid => {
           if (valid) {
-            console.log("curData", curData);
-            // 表单规则校验通过
-            if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              chores();
-            } else {
-              // 实际开发先调用修改接口，再进行下面操作
-              chores();
+            // 将表单数据映射为API需要的格式
+            const apiData: UserModel = {
+              id: title === "修改" ? row?.id : undefined,
+              username: curData.username,
+              nickName: curData.nickname,
+              phoneNumber: String(curData.phone || ""),
+              email: curData.email,
+              sex: String(curData.sex || ""),
+              nation: String(curData.nation || ""),
+              idType: String(curData.idType || ""),
+              cultureType: String(curData.cultureType || ""),
+              politicalOutlook: String(curData.politicalOutlook || ""),
+              status: String(curData.status),
+              deptId: curData.parentId,
+              remark: curData.remark
+            };
+            if (title === "新增" && curData.password) {
+              (apiData as any).password = curData.password;
             }
+            console.log("apiData", apiData);
+            saveOrUpdateUserApi(apiData).then(res => {
+              if (res.code === 200) {
+                chores();
+              }
+            });
           }
         });
       }
@@ -472,7 +528,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       props: {
         formInline: {
           username: row?.username ?? "",
-          nickname: row?.nickname ?? "",
+          nickname: row?.nickName ?? "",
           roleOptions: roleOptions.value ?? [],
           ids
         }
@@ -494,13 +550,14 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   onMounted(async () => {
     treeLoading.value = true;
-    onSearch();
-
-    // 归属部门
-    const { data } = await getDeptList();
-    higherDeptOptions.value = handleTree(data);
-    treeData.value = handleTree(data);
-    treeLoading.value = false;
+    try {
+      onSearch();
+      // 归属部门
+      const { result } = await getDeptListApi();
+      treeData.value = result;
+    } finally {
+      treeLoading.value = false;
+    }
 
     // 角色列表
     roleOptions.value = (await getAllRoleList()).data;

@@ -3,6 +3,8 @@ import { useRole } from "./utils/hook";
 import { ref, computed, nextTick, onMounted } from "vue";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { DictSelect } from "@/components/ReDict";
+import { SYS_BASE_STATUS } from "@/components/ReDict/DictKey";
 import {
   delay,
   subBefore,
@@ -57,7 +59,6 @@ const {
   dataList,
   treeData,
   treeProps,
-  isLinkage,
   pagination,
   isExpandAll,
   isSelectAll,
@@ -98,32 +99,30 @@ onMounted(() => {
       :model="form"
       class="search-form bg-bg_color w-full pl-8 pt-[12px] overflow-auto"
     >
-      <el-form-item label="角色名称：" prop="name">
+      <el-form-item label="角色名称：" prop="roleName">
         <el-input
-          v-model="form.name"
+          v-model="form.roleName"
           placeholder="请输入角色名称"
           clearable
           class="w-[180px]!"
         />
       </el-form-item>
-      <el-form-item label="角色标识：" prop="code">
+      <el-form-item label="角色标识：" prop="roleKey">
         <el-input
-          v-model="form.code"
+          v-model="form.roleKey"
           placeholder="请输入角色标识"
           clearable
           class="w-[180px]!"
         />
       </el-form-item>
       <el-form-item label="状态：" prop="status">
-        <el-select
+        <DictSelect
           v-model="form.status"
+          :dict-key="SYS_BASE_STATUS"
           placeholder="请选择状态"
           clearable
           class="w-[180px]!"
-        >
-          <el-option label="已启用" value="1" />
-          <el-option label="已停用" value="0" />
-        </el-select>
+        />
       </el-form-item>
       <el-form-item>
         <el-button
@@ -194,14 +193,14 @@ onMounted(() => {
                 修改
               </el-button>
               <el-popconfirm
-                :title="`是否确认删除角色名称为${row.name}的这条数据`"
+                :title="`是否确认删除角色名称为${row.roleName}的这条数据`"
                 @confirm="handleDelete(row)"
               >
                 <template #reference>
                   <el-button
                     class="reset-margin"
                     link
-                    type="primary"
+                    type="danger"
                     :size="size"
                     :icon="useRenderIcon(Delete)"
                   >
@@ -212,7 +211,7 @@ onMounted(() => {
               <el-button
                 class="reset-margin"
                 link
-                type="primary"
+                type="success"
                 :size="size"
                 :icon="useRenderIcon(Menu)"
                 @click="handleMenu(row)"
@@ -294,7 +293,7 @@ onMounted(() => {
           </div>
           <p class="font-bold truncate">
             菜单权限
-            {{ `${curRow?.name ? `（${curRow.name}）` : ""}` }}
+            {{ `${curRow?.roleName ? `（${curRow.roleName}）` : ""}` }}
           </p>
         </div>
         <el-input
@@ -307,7 +306,7 @@ onMounted(() => {
         <div class="flex flex-wrap">
           <el-checkbox v-model="isExpandAll" label="展开/折叠" />
           <el-checkbox v-model="isSelectAll" label="全选/全不选" />
-          <el-checkbox v-model="isLinkage" label="父子联动" />
+          <!-- <el-checkbox v-model="isLinkage" label="父子联动" /> -->
         </div>
         <el-tree-v2
           ref="treeRef"
@@ -315,7 +314,7 @@ onMounted(() => {
           :data="treeData"
           :props="treeProps"
           :height="treeHeight"
-          :check-strictly="!isLinkage"
+          :check-strictly="false"
           :filter-method="filterMethod"
         >
           <template #default="{ node }">

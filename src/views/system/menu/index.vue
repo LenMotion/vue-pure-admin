@@ -113,10 +113,10 @@ function onFullscreen() {
               修改
             </el-button>
             <el-button
-              v-show="row.menuType !== 3"
+              v-show="row.routeType !== 3"
               class="reset-margin"
               link
-              type="primary"
+              type="success"
               :size="size"
               :icon="useRenderIcon(AddFill)"
               @click="openDialog('新增', { parentId: row.id } as any)"
@@ -131,7 +131,7 @@ function onFullscreen() {
                 <el-button
                   class="reset-margin"
                   link
-                  type="primary"
+                  type="danger"
                   :size="size"
                   :icon="useRenderIcon(Delete)"
                 >

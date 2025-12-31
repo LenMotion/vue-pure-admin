@@ -9,18 +9,18 @@ const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     higherDeptOptions: [],
     parentId: 0,
-    name: "",
-    principal: "",
+    deptName: "",
+    shortName: "",
+    deptCode: "",
+    leader: "",
     phone: "",
     email: "",
-    sort: 0,
-    status: 1,
+    orderNum: 0,
     remark: ""
   })
 });
 
 const ruleFormRef = ref();
-const { switchStyle } = usePublicHooks();
 const newFormInline = ref(props.formInline);
 
 function getRef() {
@@ -46,7 +46,7 @@ defineExpose({ getRef });
             :options="newFormInline.higherDeptOptions"
             :props="{
               value: 'id',
-              label: 'name',
+              label: 'deptName',
               emitPath: false,
               checkStrictly: true
             }"
@@ -55,7 +55,7 @@ defineExpose({ getRef });
             placeholder="请选择上级部门"
           >
             <template #default="{ node, data }">
-              <span>{{ data.name }}</span>
+              <span>{{ data.deptName }}</span>
               <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
             </template>
           </el-cascader>
@@ -63,18 +63,37 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="部门名称" prop="name">
+        <el-form-item label="部门名称" prop="deptName">
           <el-input
-            v-model="newFormInline.name"
+            v-model="newFormInline.deptName"
             clearable
             placeholder="请输入部门名称"
           />
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="部门负责人">
+        <el-form-item label="简称" prop="shortName">
           <el-input
-            v-model="newFormInline.principal"
+            v-model="newFormInline.shortName"
+            clearable
+            placeholder="请输入简称"
+          />
+        </el-form-item>
+      </re-col>
+
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="单位编号" prop="deptCode">
+          <el-input
+            v-model="newFormInline.deptCode"
+            clearable
+            placeholder="请输入单位编号"
+          />
+        </el-form-item>
+      </re-col>
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="部门负责人" prop="leader">
+          <el-input
+            v-model="newFormInline.leader"
             clearable
             placeholder="请输入部门负责人"
           />
@@ -82,45 +101,32 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="手机号" prop="phone">
+        <el-form-item label="联系电话" prop="phone">
           <el-input
             v-model="newFormInline.phone"
             clearable
-            placeholder="请输入手机号"
+            placeholder="请输入联系电话"
           />
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="邮箱" prop="email">
+        <el-form-item label="部门邮箱" prop="email">
           <el-input
             v-model="newFormInline.email"
             clearable
-            placeholder="请输入邮箱"
+            placeholder="请输入部门邮箱"
           />
         </el-form-item>
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="排序">
+        <el-form-item label="排序" prop="orderNum">
           <el-input-number
-            v-model="newFormInline.sort"
+            v-model="newFormInline.orderNum"
             class="w-full!"
             :min="0"
             :max="9999"
             controls-position="right"
-          />
-        </el-form-item>
-      </re-col>
-      <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="部门状态">
-          <el-switch
-            v-model="newFormInline.status"
-            inline-prompt
-            :active-value="1"
-            :inactive-value="0"
-            active-text="启用"
-            inactive-text="停用"
-            :style="switchStyle"
           />
         </el-form-item>
       </re-col>

@@ -4,6 +4,14 @@ import ReCol from "@/components/ReCol";
 import { formRules } from "../utils/rule";
 import { FormProps } from "../utils/types";
 import { usePublicHooks } from "../../hooks";
+import { DictSelect } from "@/components/ReDict";
+import {
+  SYS_BASE_SEX,
+  SYS_BASE_NATION,
+  SYS_ID_TYPE,
+  SYS_CULTURE_TYPE,
+  SYS_BASE_POLITICAL_OUTLOOK
+} from "@/components/ReDict/DictKey";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
@@ -16,21 +24,14 @@ const props = withDefaults(defineProps<FormProps>(), {
     phone: "",
     email: "",
     sex: "",
+    nation: "",
+    idType: "",
+    cultureType: "",
+    politicalOutlook: "",
     status: 1,
     remark: ""
   })
 });
-
-const sexOptions = [
-  {
-    value: 0,
-    label: "男"
-  },
-  {
-    value: 1,
-    label: "女"
-  }
-];
 const ruleFormRef = ref();
 const { switchStyle } = usePublicHooks();
 const newFormInline = ref(props.formInline);
@@ -47,7 +48,7 @@ defineExpose({ getRef });
     ref="ruleFormRef"
     :model="newFormInline"
     :rules="formRules"
-    label-width="82px"
+    label-width="120px"
   >
     <el-row :gutter="30">
       <re-col :value="12" :xs="24" :sm="24">
@@ -104,19 +105,62 @@ defineExpose({ getRef });
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="用户性别">
-          <el-select
+          <DictSelect
             v-model="newFormInline.sex"
+            :dict-key="SYS_BASE_SEX"
             placeholder="请选择用户性别"
-            class="w-full"
             clearable
-          >
-            <el-option
-              v-for="(item, index) in sexOptions"
-              :key="index"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+            class="w-full"
+          />
+        </el-form-item>
+      </re-col>
+
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="民族">
+          <DictSelect
+            v-model="newFormInline.nation"
+            :dict-key="SYS_BASE_NATION"
+            placeholder="请选择民族"
+            clearable
+            filterable
+            class="w-full"
+          />
+        </el-form-item>
+      </re-col>
+
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="身份证件类型">
+          <DictSelect
+            v-model="newFormInline.idType"
+            :dict-key="SYS_ID_TYPE"
+            placeholder="请选择身份证件类型"
+            clearable
+            class="w-full"
+          />
+        </el-form-item>
+      </re-col>
+
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="文化水平">
+          <DictSelect
+            v-model="newFormInline.cultureType"
+            :dict-key="SYS_CULTURE_TYPE"
+            placeholder="请选择文化水平"
+            clearable
+            class="w-full"
+          />
+        </el-form-item>
+      </re-col>
+
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="政治面貌">
+          <DictSelect
+            v-model="newFormInline.politicalOutlook"
+            :dict-key="SYS_BASE_POLITICAL_OUTLOOK"
+            placeholder="请选择政治面貌"
+            clearable
+            class="w-full"
+          />
         </el-form-item>
       </re-col>
 

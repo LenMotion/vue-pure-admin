@@ -4,6 +4,8 @@ import tree from "./tree.vue";
 import { useUser } from "./utils/hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { DictSelect } from "@/components/ReDict";
+import { SYS_BASE_STATUS } from "@/components/ReDict/DictKey";
 
 import Upload from "~icons/ri/upload-line";
 import Role from "~icons/ri/admin-line";
@@ -76,24 +78,22 @@ const {
             class="w-[180px]!"
           />
         </el-form-item>
-        <el-form-item label="手机号码：" prop="phone">
+        <el-form-item label="手机号码：" prop="phoneNumber">
           <el-input
-            v-model="form.phone"
+            v-model="form.phoneNumber"
             placeholder="请输入手机号码"
             clearable
             class="w-[180px]!"
           />
         </el-form-item>
         <el-form-item label="状态：" prop="status">
-          <el-select
+          <DictSelect
             v-model="form.status"
-            placeholder="请选择"
+            :dict-key="SYS_BASE_STATUS"
+            placeholder="请选择状态"
             clearable
             class="w-[180px]!"
-          >
-            <el-option label="已开启" value="1" />
-            <el-option label="已关闭" value="0" />
-          </el-select>
+          />
         </el-form-item>
         <el-form-item>
           <el-button

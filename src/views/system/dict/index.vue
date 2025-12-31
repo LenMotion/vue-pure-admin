@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useDept } from "./utils/hook";
+import { useDictType } from "./utils/hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { DictSelect } from "@/components/ReDict";
@@ -12,7 +12,7 @@ import Refresh from "~icons/ep/refresh";
 import AddFill from "~icons/ri/add-circle-line";
 
 defineOptions({
-  name: "SystemDept"
+  name: "SystemDictType"
 });
 
 const formRef = ref();
@@ -22,15 +22,17 @@ const {
   loading,
   columns,
   dataList,
+  pagination,
   onSearch,
   resetForm,
   openDialog,
   handleDelete,
+  handleSizeChange,
+  handleCurrentChange,
   handleSelectionChange
-} = useDept();
+} = useDictType();
 
 function onFullscreen() {
-  // 重置表格高度
   tableRef.value.setAdaptive();
 }
 </script>
@@ -43,10 +45,29 @@ function onFullscreen() {
       :model="form"
       class="search-form bg-bg_color w-full pl-8 pt-[12px] overflow-auto"
     >
-      <el-form-item label="部门名称：" prop="deptName">
+      <el-form-item label="字典类型：" prop="dictType">
+        <el-select
+          v-model="form.dictType"
+          placeholder="请选择字典类型"
+          clearable
+          class="w-[180px]!"
+        >
+          <el-option label="业务字典" value="1" />
+          <el-option label="系统字典" value="0" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="字典名称：" prop="dictName">
         <el-input
-          v-model="form.deptName"
-          placeholder="请输入部门名称"
+          v-model="form.dictName"
+          placeholder="请输入字典名称"
+          clearable
+          class="w-[180px]!"
+        />
+      </el-form-item>
+      <el-form-item label="字典Key：" prop="dictKey">
+        <el-input
+          v-model="form.dictKey"
+          placeholder="请输入字典Key"
           clearable
           class="w-[180px]!"
         />
@@ -76,7 +97,7 @@ function onFullscreen() {
     </el-form>
 
     <PureTableBar
-      title="部门管理（仅演示，操作后不生效）"
+      title="字典类型管理"
       :columns="columns"
       :tableRef="tableRef?.getTableRef()"
       @refresh="onSearch"
@@ -88,28 +109,29 @@ function onFullscreen() {
           :icon="useRenderIcon(AddFill)"
           @click="openDialog()"
         >
-          新增部门
+          新增字典类型
         </el-button>
       </template>
       <template v-slot="{ size, dynamicColumns }">
         <pure-table
           ref="tableRef"
-          adaptive
-          :adaptiveConfig="{ offsetBottom: 45 }"
           align-whole="center"
-          row-key="id"
           showOverflowTooltip
           table-layout="auto"
-          default-expand-all
           :loading="loading"
           :size="size"
+          adaptive
+          :adaptiveConfig="{ offsetBottom: 108 }"
           :data="dataList"
           :columns="dynamicColumns"
+          :pagination="{ ...pagination, size }"
           :header-cell-style="{
             background: 'var(--el-fill-color-light)',
             color: 'var(--el-text-color-primary)'
           }"
           @selection-change="handleSelectionChange"
+          @page-size-change="handleSizeChange"
+          @page-current-change="handleCurrentChange"
         >
           <template #operation="{ row }">
             <el-button
@@ -122,18 +144,8 @@ function onFullscreen() {
             >
               修改
             </el-button>
-            <el-button
-              class="reset-margin"
-              link
-              type="success"
-              :size="size"
-              :icon="useRenderIcon(AddFill)"
-              @click="openDialog('新增', { parentId: row.id } as any)"
-            >
-              新增
-            </el-button>
             <el-popconfirm
-              :title="`是否确认删除部门名称为${row.name}的这条数据`"
+              :title="`是否确认删除字典名称为${row.dictName}的这条数据`"
               @confirm="handleDelete(row)"
             >
               <template #reference>
@@ -156,10 +168,6 @@ function onFullscreen() {
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-table__inner-wrapper::before) {
-  height: 0;
-}
-
 .main-content {
   margin: 24px 24px 0 !important;
 }
@@ -168,5 +176,11 @@ function onFullscreen() {
   :deep(.el-form-item) {
     margin-bottom: 12px;
   }
+}
+</style>
+
+<style lang="scss">
+.dict-drawer-header {
+  margin-bottom: 0 !important;
 }
 </style>

@@ -59,22 +59,22 @@ const dataList = ref([
   {
     title: "响应头",
     name: "responseHeaders",
-    data: (props.data[0] as any).responseHeaders
+    data: (props.data[0] as any)?.responseHeaders
   },
   {
     title: "响应体",
     name: "responseBody",
-    data: (props.data[0] as any).responseBody
+    data: (props.data[0] as any)?.responseBody
   },
   {
     title: "请求头",
     name: "requestHeaders",
-    data: (props.data[0] as any).requestHeaders
+    data: (props.data[0] as any)?.requestHeaders
   },
   {
     title: "请求体",
     name: "requestBody",
-    data: (props.data[0] as any).requestBody
+    data: (props.data[0] as any)?.requestBody
   }
 ]);
 </script>

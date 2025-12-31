@@ -160,7 +160,6 @@ function handleAsyncRoutes(routeList) {
     usePermissionStoreHook().handleWholeMenus(routeList);
   } else {
     const list = addAsyncRoutes(routeList);
-    console.log("处理后的路由数据:", list);
     formatFlatteningRoutes(list).map((v: RouteRecordRaw) => {
       // 防止重复添加路由
       if (
@@ -183,7 +182,6 @@ function handleAsyncRoutes(routeList) {
         router.addRoute(flattenRouters);
       }
     });
-    console.log("处理后的路由数据2:", routeList);
     usePermissionStoreHook().handleWholeMenus(routeList);
   }
   if (!useMultiTagsStoreHook().getMultiTagsCache) {
@@ -204,7 +202,6 @@ function initRouter() {
     const key = "async-routes";
     const asyncRouteList = storageLocal().getItem(key) as any;
     if (asyncRouteList && asyncRouteList?.length > 0) {
-      console.log("使用缓存的路由数据:", asyncRouteList);
       return new Promise(resolve => {
         handleAsyncRoutes(asyncRouteList);
         resolve(router);
@@ -212,7 +209,6 @@ function initRouter() {
     } else {
       return new Promise(resolve => {
         getAsyncRoutes().then(({ result }) => {
-          console.log("从后端获取的路由数据:", result);
           handleAsyncRoutes(cloneDeep(result));
           storageLocal().setItem(key, result);
           resolve(router);
@@ -222,7 +218,6 @@ function initRouter() {
   } else {
     return new Promise(resolve => {
       getAsyncRoutes().then(({ result }) => {
-        console.log("从后端获取的路由数据（无缓存）:", cloneDeep(result));
         handleAsyncRoutes(cloneDeep(result));
         resolve(router);
       });

@@ -4,7 +4,10 @@ import { isPhone, isEmail } from "@pureadmin/utils";
 
 /** 自定义表单规则校验 */
 export const formRules = reactive(<FormRules>{
-  name: [{ required: true, message: "部门名称为必填项", trigger: "blur" }],
+  deptName: [{ required: true, message: "部门名称为必填项", trigger: "blur" }],
+  deptCode: [{ required: true, message: "部门编码为必填项", trigger: "blur" }],
+  shortName: [{ required: true, message: "简称为必填项", trigger: "blur" }],
+  orderNum: [{ required: true, message: "排序为必填项", trigger: "blur" }],
   phone: [
     {
       validator: (rule, value, callback) => {
@@ -17,7 +20,6 @@ export const formRules = reactive(<FormRules>{
         }
       },
       trigger: "blur"
-      // trigger: "click" // 如果想在点击确定按钮时触发这个校验，trigger 设置成 click 即可
     }
   ],
   email: [

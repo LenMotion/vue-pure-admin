@@ -1,16 +1,7 @@
-interface FormItemProps {
-  higherDeptOptions: Record<string, unknown>[];
-  parentId: number;
-  name: string;
-  principal: string;
-  phone: string | number;
-  email: string;
-  sort: number;
-  status: number;
-  remark: string;
-}
+import type { DeptModel } from "@/api/system/dept";
+
 interface FormProps {
-  formInline: FormItemProps;
+  formInline: DeptModel;
 }
 
-export type { FormItemProps, FormProps };
+export type { FormProps };

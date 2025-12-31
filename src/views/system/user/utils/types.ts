@@ -10,6 +10,14 @@ interface FormItemProps {
   phone: string | number;
   email: string;
   sex: string | number;
+  /** 民族 */
+  nation?: string | number;
+  /** 身份证件类型 */
+  idType?: string | number;
+  /** 文化水平 */
+  cultureType?: string | number;
+  /** 政治面貌 */
+  politicalOutlook?: string | number;
   status: number;
   dept?: {
     id?: number;

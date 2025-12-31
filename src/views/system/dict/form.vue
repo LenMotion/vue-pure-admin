@@ -5,9 +5,10 @@ import { FormProps } from "./utils/types";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-    roleName: "",
-    roleKey: "",
-    dataScope: "",
+    dictType: "1", // 默认业务字典
+    dictName: "",
+    dictKey: "",
+    status: "0",
     remark: ""
   })
 });
@@ -29,36 +30,37 @@ defineExpose({ getRef });
     :rules="formRules"
     label-width="82px"
   >
-    <el-form-item label="角色名称" prop="roleName">
+    <el-form-item label="字典类型" prop="dictType">
+      <el-select
+        v-model="newFormInline.dictType"
+        placeholder="请选择字典类型"
+        clearable
+      >
+        <el-option label="业务字典" value="1" />
+        <el-option label="系统字典" value="0" />
+      </el-select>
+    </el-form-item>
+
+    <el-form-item label="字典名称" prop="dictName">
       <el-input
-        v-model="newFormInline.roleName"
+        v-model="newFormInline.dictName"
         clearable
-        placeholder="请输入角色名称"
+        placeholder="请输入字典名称"
       />
     </el-form-item>
 
-    <el-form-item label="角色标识" prop="roleKey">
+    <el-form-item label="字典Key" prop="dictKey">
       <el-input
-        v-model="newFormInline.roleKey"
+        v-model="newFormInline.dictKey"
         clearable
-        placeholder="请输入角色标识"
+        placeholder="请输入字典Key"
       />
     </el-form-item>
 
-    <el-form-item label="排序" prop="roleSort">
-      <el-input-number
-        v-model="newFormInline.roleSort"
-        clearable
-        placeholder="请输入角色序号"
-      />
-    </el-form-item>
-
-    <el-form-item label="数据范围" prop="dataScope">
-      <el-select v-model="newFormInline.dataScope" placeholder="请选择数据范围">
-        <el-option label="全部数据" value="1" />
-        <!-- <el-option label="自定数据" value="2" /> -->
-        <el-option label="本部门数据" value="3" />
-        <el-option label="本部门及以下数据" value="4" />
+    <el-form-item label="状态" prop="status">
+      <el-select v-model="newFormInline.status" placeholder="请选择状态">
+        <el-option label="正常" value="0" />
+        <el-option label="停用" value="1" />
       </el-select>
     </el-form-item>
 

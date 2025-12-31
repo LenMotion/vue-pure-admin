@@ -2,11 +2,8 @@
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { ref, computed, watch, getCurrentInstance } from "vue";
 
-import Dept from "~icons/ri/git-branch-line";
 // import Reset from "~icons/ri/restart-line";
 import More2Fill from "~icons/ri/more-2-fill?width=18&height=18";
-import OfficeBuilding from "~icons/ep/office-building";
-import LocationCompany from "~icons/ep/add-location";
 import ExpandIcon from "./svg/expand.svg?component";
 import UnExpandIcon from "./svg/unexpand.svg?component";
 
@@ -159,7 +156,7 @@ defineExpose({ onTreeReset });
         :filter-node-method="filterNode"
         @node-click="nodeClick"
       >
-        <template #default="{ node, data }">
+        <template #default="{ node }">
           <div
             :class="[
               'rounded-sm',
@@ -181,15 +178,6 @@ defineExpose({ onTreeReset });
                 : 'transparent'
             }"
           >
-            <IconifyIconOffline
-              :icon="
-                data.type === 1
-                  ? OfficeBuilding
-                  : data.type === 2
-                    ? LocationCompany
-                    : Dept
-              "
-            />
             <span class="w-[120px]! truncate!" :title="node.label">
               {{ node.label }}
             </span>

@@ -10,6 +10,7 @@ import {
 import type { UserResult } from "@/api/user";
 import { login, type UserInfoData } from "@/api/system/auth";
 import { useMultiTagsStoreHook } from "./multiTags";
+import { useDictStoreHook } from "./dict";
 import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
 
 export const useUserStore = defineStore("pure-user", {
@@ -92,6 +93,9 @@ export const useUserStore = defineStore("pure-user", {
                 nickname: userInfo.nickName || ""
               };
               setToken(tokenData);
+
+              // 清空字典缓存
+              useDictStoreHook().clearDictCache();
 
               // 转换为旧格式以保持兼容性
               resolve({
